@@ -43,7 +43,6 @@ def main():
     # Attempt to parse sentence
     try:
         trees = list(parser.parse(s))
-        print(f"Trees: {trees}")
     except ValueError as e:
         print(e)
         return
@@ -71,7 +70,6 @@ def preprocess(sentence):
     tokens = nltk.tokenize.word_tokenize(sentence) # split sentence into list of words
     # Remove any words not containing at least one alphabetic character (e.g '.' or '28')
     filtered = [token for token in tokens if token.isalpha()]
-    # print(f'filtered: {type(filtered)}')
     return filtered
 
 
