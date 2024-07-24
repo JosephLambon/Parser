@@ -15,12 +15,16 @@ V -> "smiled" | "tell" | "were"
 """
 
 NONTERMINALS = """
-S -> N V
+S -> NP VP | S Conj S
+NP -> Det N | Det Adj N | Adj N | N | N PP | Det N PP | Det Adj N PP | N Conj N | NP Conj NP
+VP -> V | V NP | V NP PP | V PP | Adv V | V Adv | V Conj V | VP Conj VP
+PP -> P NP
+AdjP -> Adj | Adj Conj Adj
+AdvP -> Adv | Adv Conj Adv
 """
 
 grammar = nltk.CFG.fromstring(NONTERMINALS + TERMINALS)
 parser = nltk.ChartParser(grammar)
-
 
 def main():
 
@@ -39,6 +43,7 @@ def main():
     # Attempt to parse sentence
     try:
         trees = list(parser.parse(s))
+        print(f"Trees: {trees}")
     except ValueError as e:
         print(e)
         return
@@ -62,7 +67,12 @@ def preprocess(sentence):
     and removing any word that does not contain at least one alphabetic
     character.
     """
-    raise NotImplementedError
+    sentence = sentence.lower() # Convert all characters to lowercase
+    tokens = nltk.tokenize.word_tokenize(sentence) # split sentence into list of words
+    # Remove any words not containing at least one alphabetic character (e.g '.' or '28')
+    filtered = [token for token in tokens if token.isalpha()]
+    # print(f'filtered: {type(filtered)}')
+    return filtered
 
 
 def np_chunk(tree):
@@ -72,8 +82,21 @@ def np_chunk(tree):
     whose label is "NP" that does not itself contain any other
     noun phrases as subtrees.
     """
-    raise NotImplementedError
+    # Check, recursively, there are no smaller NP chunks within
+    def recursive_check(subtree):
+        for descendant in subtree.subtrees(lambda t: t != subtree): # Check second layer for NPs
+            if descendant.label() == 'NP':
+                return False # If subtree's subtrees contain NP, return False
+        return True
 
+    npChunks = [] # Initialise list of np chunks
+
+    for subtree in tree.subtrees(lambda t: t.label()=="NP"): # Check for subtrees with NP label
+        if all(child.label() != 'NP' for child in subtree): # Check there's no smaller NP
+            if recursive_check(subtree): # Check subtree's subtrees
+                npChunks.append(subtree) # Add subtree to list
+
+    return npChunks
 
 if __name__ == "__main__":
     main()
