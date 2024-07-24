@@ -65,3 +65,5 @@ python parser.py
 ## <a id='Example'> Demo </a>
 
 A successul run of this python script should see command line output as such:
+
+![success](https://github.com/user-attachments/assets/3c9e5338-dc33-4488-a96c-41be0cbd3f07)
